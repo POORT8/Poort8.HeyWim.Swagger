@@ -484,63 +484,6 @@ components:
         payload:
           $ref: https://api.swaggerhub.com/domains/dcsaorg/EVENT_DOMAIN/3.1.0#/components/schemas/transportPayload
       additionalProperties: false
-    EquipmentResponse:
-      type: object
-      properties:
-        containerNumber:
-          type: string
-          nullable: true
-        message:
-          type: string
-          nullable: true
-      additionalProperties: false
-    SeaconEquipment:
-      type: object
-      properties:
-        container:
-          type: string
-          nullable: true
-        scac:
-          type: string
-          nullable: true
-        mbl:
-          type: string
-          nullable: true
-        file:
-          type: string
-          nullable: true
-        reference:
-          type: string
-          nullable: true
-        relnu:
-          type: integer
-          format: int32
-          nullable: true
-        relname:
-          type: string
-          nullable: true
-        hbl:
-          type: string
-          nullable: true
-        loading:
-          type: string
-          nullable: true
-        unloading:
-          type: string
-          nullable: true
-        port_load:
-          type: string
-          nullable: true
-        port_unloaded:
-          type: string
-          nullable: true
-        inland_terminal:
-          type: string
-          nullable: true
-        inland_terminal_reference:
-          type: string
-          nullable: true
-      additionalProperties: false
   securitySchemes:
     apiKeyHeader:
       type: apiKey
