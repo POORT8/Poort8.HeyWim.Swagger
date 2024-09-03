@@ -233,10 +233,13 @@ components:
       type: object
       properties:
         fileNumber:
+          description: Identifying number for a container journey. typically a container number, but sometimes another reference such as booking number can be used.
+          example: ABCU1234567
           type: string
           nullable: true
         containerNumber:
           type: string
+          example: ABCU1234567
           nullable: true
         carrier:
           $ref: '#/components/schemas/DataSourceEnum'
