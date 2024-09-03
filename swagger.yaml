@@ -1,718 +1,552 @@
----
-swagger: "2.0"
+openapi: 3.0.1
 info:
-  description: "This is a sample server Petstore server.  You can find out more about\
-    \ Swagger at [http://swagger.io](http://swagger.io) or on [irc.freenode.net, #swagger](http://swagger.io/irc/).\
-    \  For this sample, you can use the api key `special-key` to test the authorization\
-    \ filters."
-  version: "1.0.5"
-  title: "Swagger Petstore"
-  termsOfService: "http://swagger.io/terms/"
-  contact:
-    email: "apiteam@swagger.io"
-  license:
-    name: "Apache 2.0"
-    url: "http://www.apache.org/licenses/LICENSE-2.0.html"
-host: "petstore.swagger.io"
-basePath: "/v2"
-tags:
-- name: "pet"
-  description: "Everything about your Pets"
-  externalDocs:
-    description: "Find out more"
-    url: "http://swagger.io"
-- name: "store"
-  description: "Access to Petstore orders"
-- name: "user"
-  description: "Operations about user"
-  externalDocs:
-    description: "Find out more about our store"
-    url: "http://swagger.io"
-schemes:
-- "https"
-- "http"
+  title: Poort8-HeyWim-Tracking
+  version: '1.0'
+servers:
+  - url: https://api.poort8.nl/heywim/tracking
+  - url: https://api.poort8.nl/heywim-preview/tracking
 paths:
-  /pet/{petId}/uploadImage:
+  /v1/equipment/{companyEndpointName}:
     post:
       tags:
-      - "pet"
-      summary: "uploads an image"
-      description: ""
-      operationId: "uploadFile"
-      consumes:
-      - "multipart/form-data"
-      produces:
-      - "application/json"
+        - Tracking
+      summary: /v1/equipment/{companyEndpointName} - POST
+      description: Equipment endpoint intended to start tracking a container.
+      operationId: post-v1-equipment-companyendpointname
       parameters:
-      - name: "petId"
-        in: "path"
-        description: "ID of pet to update"
-        required: true
-        type: "integer"
-        format: "int64"
-      - name: "additionalMetadata"
-        in: "formData"
-        description: "Additional data to pass to server"
-        required: false
-        type: "string"
-      - name: "file"
-        in: "formData"
-        description: "file to upload"
-        required: false
-        type: "file"
-      responses:
-        200:
-          description: "successful operation"
+        - name: companyEndpointName
+          in: path
+          required: true
           schema:
-            $ref: "#/definitions/ApiResponse"
-      security:
-      - petstore_auth:
-        - "write:pets"
-        - "read:pets"
-  /pet:
-    post:
-      tags:
-      - "pet"
-      summary: "Add a new pet to the store"
-      description: ""
-      operationId: "addPet"
-      consumes:
-      - "application/json"
-      - "application/xml"
-      produces:
-      - "application/json"
-      - "application/xml"
-      parameters:
-      - in: "body"
-        name: "body"
-        description: "Pet object that needs to be added to the store"
-        required: true
-        schema:
-          $ref: "#/definitions/Pet"
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/CustomerContainerDto'
+            example:
+              - containerNumber: string
+                shippingCompany: string
+                billOfLading: string
+                houseBillOfLading: string
+                shipName: string
+                shipEtdOrigin: string
+                shipEtaDestination: string
+                shipEtdDestination: string
+                terminal: string
+                file: string
+                reference: string
+                relationNumber: string
+                relationName: string
+                portOfLoad: string
+                portOfDischarge: string
+                sizeType: string
+                transportType: string
+                inlandModality: string
+                inlandTerminal: string
+                inlandTerminalReference: string
       responses:
-        405:
-          description: "Invalid input"
-      security:
-      - petstore_auth:
-        - "write:pets"
-        - "read:pets"
-    put:
-      tags:
-      - "pet"
-      summary: "Update an existing pet"
-      description: ""
-      operationId: "updatePet"
-      consumes:
-      - "application/json"
-      - "application/xml"
-      produces:
-      - "application/json"
-      - "application/xml"
-      parameters:
-      - in: "body"
-        name: "body"
-        description: "Pet object that needs to be added to the store"
-        required: true
-        schema:
-          $ref: "#/definitions/Pet"
-      responses:
-        400:
-          description: "Invalid ID supplied"
-        404:
-          description: "Pet not found"
-        405:
-          description: "Validation exception"
-      security:
-      - petstore_auth:
-        - "write:pets"
-        - "read:pets"
-  /pet/findByStatus:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CustomerContainerDtoCrudResponse'
+              example:
+                - created: true
+                  updated: true
+                  deleted: true
+                  errorMessage: string
+                  httpStatusCode: 0
+                  result:
+                    containerNumber: string
+                    shippingCompany: string
+                    billOfLading: string
+                    houseBillOfLading: string
+                    shipName: string
+                    shipEtdOrigin: string
+                    shipEtaDestination: string
+                    shipEtdDestination: string
+                    terminal: string
+                    file: string
+                    reference: string
+                    relationNumber: string
+                    relationName: string
+                    portOfLoad: string
+                    portOfDischarge: string
+                    sizeType: string
+                    transportType: string
+                    inlandModality: string
+                    inlandTerminal: string
+                    inlandTerminalReference: string
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+              example:
+                statusCode: 0
+                message: string
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+              example:
+                statusCode: 0
+                message: string
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+              example:
+                statusCode: 0
+                message: string
+  /v1/events/{companyEndpointName}:
     get:
       tags:
-      - "pet"
-      summary: "Finds Pets by status"
-      description: "Multiple status values can be provided with comma separated strings"
-      operationId: "findPetsByStatus"
-      produces:
-      - "application/json"
-      - "application/xml"
+        - Tracking
+      summary: /v1/events/{companyEndpointName}?equipmentReference={equipmentReference} - GET
+      description: Events endpoint to get events for certain container(s). Events datamodel according to [DCSA OpenAPI specification for Track & Trace 3.0.0-Beta-1](https://app.swaggerhub.com/apis/dcsaorg/DCSA_TNT/3.0.0-Beta-1). This endpoint may produce a FeederTransportCall. This type of transport event, along with a feeder as a mode of transport/ModeOfTransport enum, is not a DCSA standard. Feeder transport events were implemented for clarity reasons.
+      operationId: get-v1-events-companyendpointname-equipmentreference-equipmentreference
       parameters:
-      - name: "status"
-        in: "query"
-        description: "Status values that need to be considered for filter"
-        required: true
-        type: "array"
-        items:
-          type: "string"
-          enum:
-          - "available"
-          - "pending"
-          - "sold"
-          default: "available"
-        collectionFormat: "multi"
-      responses:
-        200:
-          description: "successful operation"
+        - name: companyEndpointName
+          in: path
+          description: Company endpoint name for which the events are requested
+          required: true
           schema:
-            type: "array"
+            type: string
+        - name: equipmentReference
+          in: query
+          description: Array of container numbers for which the events will be returned.
+          required: true
+          schema:
+            type: array
             items:
-              $ref: "#/definitions/Pet"
-        400:
-          description: "Invalid status value"
-      security:
-      - petstore_auth:
-        - "write:pets"
-        - "read:pets"
-  /pet/findByTags:
+              type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: https://api.swaggerhub.com/domains/dcsaorg/EVENT_DOMAIN/3.1.0#/components/schemas/event
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+  /v1/milestones/{companyEndpointName}:
     get:
       tags:
-      - "pet"
-      summary: "Finds Pets by tags"
-      description: "Multiple tags can be provided with comma separated strings. Use\
-        \ tag1, tag2, tag3 for testing."
-      operationId: "findPetsByTags"
-      produces:
-      - "application/json"
-      - "application/xml"
+        - Tracking
+      summary: /v1/milestones/{companyEndpointName}?equipmentReference={equipmentReference} - GET
+      description: Milestones endpoint to get milestones for certain container(s).
+      operationId: get-v1-milestones-companyendpointname-equipmentreference-equipmentreference
       parameters:
-      - name: "tags"
-        in: "query"
-        description: "Tags to filter by"
-        required: true
-        type: "array"
-        items:
-          type: "string"
-        collectionFormat: "multi"
-      responses:
-        200:
-          description: "successful operation"
+        - name: companyEndpointName
+          in: path
+          description: Company name for which the milestonse are requested
+          required: true
           schema:
-            type: "array"
+            type: string
+        - name: equipmentReference
+          in: query
+          description: Array of container numbers for which the milestones will be returned.
+          required: true
+          schema:
+            type: array
             items:
-              $ref: "#/definitions/Pet"
-        400:
-          description: "Invalid tag value"
-      security:
-      - petstore_auth:
-        - "write:pets"
-        - "read:pets"
-      deprecated: true
-  /pet/{petId}:
-    get:
-      tags:
-      - "pet"
-      summary: "Find pet by ID"
-      description: "Returns a single pet"
-      operationId: "getPetById"
-      produces:
-      - "application/json"
-      - "application/xml"
-      parameters:
-      - name: "petId"
-        in: "path"
-        description: "ID of pet to return"
-        required: true
-        type: "integer"
-        format: "int64"
+              type: string
       responses:
-        200:
-          description: "successful operation"
-          schema:
-            $ref: "#/definitions/Pet"
-        400:
-          description: "Invalid ID supplied"
-        404:
-          description: "Pet not found"
-      security:
-      - api_key: []
-    post:
-      tags:
-      - "pet"
-      summary: "Updates a pet in the store with form data"
-      description: ""
-      operationId: "updatePetWithForm"
-      consumes:
-      - "application/x-www-form-urlencoded"
-      produces:
-      - "application/json"
-      - "application/xml"
-      parameters:
-      - name: "petId"
-        in: "path"
-        description: "ID of pet that needs to be updated"
-        required: true
-        type: "integer"
-        format: "int64"
-      - name: "name"
-        in: "formData"
-        description: "Updated name of the pet"
-        required: false
-        type: "string"
-      - name: "status"
-        in: "formData"
-        description: "Updated status of the pet"
-        required: false
-        type: "string"
-      responses:
-        405:
-          description: "Invalid input"
-      security:
-      - petstore_auth:
-        - "write:pets"
-        - "read:pets"
-    delete:
-      tags:
-      - "pet"
-      summary: "Deletes a pet"
-      description: ""
-      operationId: "deletePet"
-      produces:
-      - "application/json"
-      - "application/xml"
-      parameters:
-      - name: "api_key"
-        in: "header"
-        required: false
-        type: "string"
-      - name: "petId"
-        in: "path"
-        description: "Pet id to delete"
-        required: true
-        type: "integer"
-        format: "int64"
-      responses:
-        400:
-          description: "Invalid ID supplied"
-        404:
-          description: "Pet not found"
-      security:
-      - petstore_auth:
-        - "write:pets"
-        - "read:pets"
-  /store/order:
-    post:
-      tags:
-      - "store"
-      summary: "Place an order for a pet"
-      description: ""
-      operationId: "placeOrder"
-      consumes:
-      - "application/json"
-      produces:
-      - "application/json"
-      - "application/xml"
-      parameters:
-      - in: "body"
-        name: "body"
-        description: "order placed for purchasing the pet"
-        required: true
-        schema:
-          $ref: "#/definitions/Order"
-      responses:
-        200:
-          description: "successful operation"
-          schema:
-            $ref: "#/definitions/Order"
-        400:
-          description: "Invalid Order"
-  /store/order/{orderId}:
-    get:
-      tags:
-      - "store"
-      summary: "Find purchase order by ID"
-      description: "For valid response try integer IDs with value >= 1 and <= 10.\
-        \ Other values will generated exceptions"
-      operationId: "getOrderById"
-      produces:
-      - "application/json"
-      - "application/xml"
-      parameters:
-      - name: "orderId"
-        in: "path"
-        description: "ID of pet that needs to be fetched"
-        required: true
-        type: "integer"
-        maximum: 10
-        minimum: 1
-        format: "int64"
-      responses:
-        200:
-          description: "successful operation"
-          schema:
-            $ref: "#/definitions/Order"
-        400:
-          description: "Invalid ID supplied"
-        404:
-          description: "Order not found"
-    delete:
-      tags:
-      - "store"
-      summary: "Delete purchase order by ID"
-      description: "For valid response try integer IDs with positive integer value.\
-        \ Negative or non-integer values will generate API errors"
-      operationId: "deleteOrder"
-      produces:
-      - "application/json"
-      - "application/xml"
-      parameters:
-      - name: "orderId"
-        in: "path"
-        description: "ID of the order that needs to be deleted"
-        required: true
-        type: "integer"
-        minimum: 1
-        format: "int64"
-      responses:
-        400:
-          description: "Invalid ID supplied"
-        404:
-          description: "Order not found"
-  /store/inventory:
-    get:
-      tags:
-      - "store"
-      summary: "Returns pet inventories by status"
-      description: "Returns a map of status codes to quantities"
-      operationId: "getInventory"
-      produces:
-      - "application/json"
-      parameters: []
-      responses:
-        200:
-          description: "successful operation"
-          schema:
-            type: "object"
-            additionalProperties:
-              type: "integer"
-              format: "int32"
-      security:
-      - api_key: []
-  /user/createWithArray:
-    post:
-      tags:
-      - "user"
-      summary: "Creates list of users with given input array"
-      description: ""
-      operationId: "createUsersWithArrayInput"
-      consumes:
-      - "application/json"
-      produces:
-      - "application/json"
-      - "application/xml"
-      parameters:
-      - in: "body"
-        name: "body"
-        description: "List of user object"
-        required: true
-        schema:
-          type: "array"
-          items:
-            $ref: "#/definitions/User"
-      responses:
-        default:
-          description: "successful operation"
-  /user/createWithList:
-    post:
-      tags:
-      - "user"
-      summary: "Creates list of users with given input array"
-      description: ""
-      operationId: "createUsersWithListInput"
-      consumes:
-      - "application/json"
-      produces:
-      - "application/json"
-      - "application/xml"
-      parameters:
-      - in: "body"
-        name: "body"
-        description: "List of user object"
-        required: true
-        schema:
-          type: "array"
-          items:
-            $ref: "#/definitions/User"
-      responses:
-        default:
-          description: "successful operation"
-  /user/{username}:
-    get:
-      tags:
-      - "user"
-      summary: "Get user by user name"
-      description: ""
-      operationId: "getUserByName"
-      produces:
-      - "application/json"
-      - "application/xml"
-      parameters:
-      - name: "username"
-        in: "path"
-        description: "The name that needs to be fetched. Use user1 for testing. "
-        required: true
-        type: "string"
-      responses:
-        200:
-          description: "successful operation"
-          schema:
-            $ref: "#/definitions/User"
-        400:
-          description: "Invalid username supplied"
-        404:
-          description: "User not found"
-    put:
-      tags:
-      - "user"
-      summary: "Updated user"
-      description: "This can only be done by the logged in user."
-      operationId: "updateUser"
-      consumes:
-      - "application/json"
-      produces:
-      - "application/json"
-      - "application/xml"
-      parameters:
-      - name: "username"
-        in: "path"
-        description: "name that need to be updated"
-        required: true
-        type: "string"
-      - in: "body"
-        name: "body"
-        description: "Updated user object"
-        required: true
-        schema:
-          $ref: "#/definitions/User"
-      responses:
-        400:
-          description: "Invalid user supplied"
-        404:
-          description: "User not found"
-    delete:
-      tags:
-      - "user"
-      summary: "Delete user"
-      description: "This can only be done by the logged in user."
-      operationId: "deleteUser"
-      produces:
-      - "application/json"
-      - "application/xml"
-      parameters:
-      - name: "username"
-        in: "path"
-        description: "The name that needs to be deleted"
-        required: true
-        type: "string"
-      responses:
-        400:
-          description: "Invalid username supplied"
-        404:
-          description: "User not found"
-  /user/login:
-    get:
-      tags:
-      - "user"
-      summary: "Logs user into the system"
-      description: ""
-      operationId: "loginUser"
-      produces:
-      - "application/json"
-      - "application/xml"
-      parameters:
-      - name: "username"
-        in: "query"
-        description: "The user name for login"
-        required: true
-        type: "string"
-      - name: "password"
-        in: "query"
-        description: "The password for login in clear text"
-        required: true
-        type: "string"
-      responses:
-        200:
-          description: "successful operation"
-          headers:
-            X-Expires-After:
-              type: "string"
-              format: "date-time"
-              description: "date in UTC when token expires"
-            X-Rate-Limit:
-              type: "integer"
-              format: "int32"
-              description: "calls per hour allowed by the user"
-          schema:
-            type: "string"
-        400:
-          description: "Invalid username/password supplied"
-  /user/logout:
-    get:
-      tags:
-      - "user"
-      summary: "Logs out current logged in user session"
-      description: ""
-      operationId: "logoutUser"
-      produces:
-      - "application/json"
-      - "application/xml"
-      parameters: []
-      responses:
-        default:
-          description: "successful operation"
-  /user:
-    post:
-      tags:
-      - "user"
-      summary: "Create user"
-      description: "This can only be done by the logged in user."
-      operationId: "createUser"
-      consumes:
-      - "application/json"
-      produces:
-      - "application/json"
-      - "application/xml"
-      parameters:
-      - in: "body"
-        name: "body"
-        description: "Created user object"
-        required: true
-        schema:
-          $ref: "#/definitions/User"
-      responses:
-        default:
-          description: "successful operation"
-securityDefinitions:
-  api_key:
-    type: "apiKey"
-    name: "api_key"
-    in: "header"
-  petstore_auth:
-    type: "oauth2"
-    authorizationUrl: "https://petstore.swagger.io/oauth/authorize"
-    flow: "implicit"
-    scopes:
-      read:pets: "read your pets"
-      write:pets: "modify pets in your account"
-definitions:
-  ApiResponse:
-    type: "object"
-    properties:
-      code:
-        type: "integer"
-        format: "int32"
-      type:
-        type: "string"
-      message:
-        type: "string"
-  Category:
-    type: "object"
-    properties:
-      id:
-        type: "integer"
-        format: "int64"
-      name:
-        type: "string"
-    xml:
-      name: "Category"
-  Pet:
-    type: "object"
-    required:
-    - "name"
-    - "photoUrls"
-    properties:
-      id:
-        type: "integer"
-        format: "int64"
-      category:
-        $ref: "#/definitions/Category"
-      name:
-        type: "string"
-        example: "doggie"
-      photoUrls:
-        type: "array"
-        xml:
-          wrapped: true
-        items:
-          type: "string"
-          xml:
-            name: "photoUrl"
-      tags:
-        type: "array"
-        xml:
-          wrapped: true
-        items:
-          xml:
-            name: "tag"
-          $ref: "#/definitions/Tag"
-      status:
-        type: "string"
-        description: "pet status in the store"
-        enum:
-        - "available"
-        - "pending"
-        - "sold"
-    xml:
-      name: "Pet"
-  Tag:
-    type: "object"
-    properties:
-      id:
-        type: "integer"
-        format: "int64"
-      name:
-        type: "string"
-    xml:
-      name: "Tag"
-  Order:
-    type: "object"
-    properties:
-      id:
-        type: "integer"
-        format: "int64"
-      petId:
-        type: "integer"
-        format: "int64"
-      quantity:
-        type: "integer"
-        format: "int32"
-      shipDate:
-        type: "string"
-        format: "date-time"
-      status:
-        type: "string"
-        description: "Order Status"
-        enum:
-        - "placed"
-        - "approved"
-        - "delivered"
-      complete:
-        type: "boolean"
-    xml:
-      name: "Order"
-  User:
-    type: "object"
-    properties:
-      id:
-        type: "integer"
-        format: "int64"
-      username:
-        type: "string"
-      firstName:
-        type: "string"
-      lastName:
-        type: "string"
-      email:
-        type: "string"
-      password:
-        type: "string"
-      phone:
-        type: "string"
-      userStatus:
-        type: "integer"
-        format: "int32"
-        description: "User Status"
-    xml:
-      name: "User"
-externalDocs:
-  description: "Find out more about Swagger"
-  url: "http://swagger.io"
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ContainerJourneyMilestones'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+              example:
+                statusCode: 0
+                message: string
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+              example:
+                statusCode: 0
+                message: string
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+              example:
+                statusCode: 0
+                message: string
+components:
+  schemas:
+    ApiError:
+      type: object
+      properties:
+        statusCode:
+          type: integer
+          format: int32
+        message:
+          type: string
+          nullable: true
+      additionalProperties: false
+    ContainerJourneyMilestones:
+      type: object
+      properties:
+        fileNumber:
+          type: string
+          nullable: true
+        containerNumber:
+          type: string
+          nullable: true
+        carrier:
+          $ref: '#/components/schemas/DataSourceEnum'
+        gateOutEmptyFromDepot:
+          allOf:
+            - description: Represents when the container is gated out from the depot while empty, typically for transportation by truck. This milestone is derived by identifying the earliest GTOT event for an empty container at a DEPO facility before the journey starts.
+            - nullable: true
+            - $ref: '#/components/schemas/EquipmentEvent'
+        loadEmptyAtDepot:
+          allOf:
+            - description: Indicates the loading of an empty container at the depot, typically for transportation by train or barge. This milestone is derived by identifying the earliest LOAD event for an empty container at a DEPO facility before the journey starts.
+            - nullable: true
+            - $ref: '#/components/schemas/EquipmentEvent'
+        departureEmptyFromDepot:
+          allOf:
+            - description: Marks the departure of a container laden on a train or barge from the depot. This milestone is derived by finding the earliest DEPA event for an empty container at a DEPO facility before the journey starts.
+            - nullable: true
+            - $ref: '#/components/schemas/TransportEvent'
+        gateInAtInlandTerminalOrigin:
+          allOf:
+            - description: Represents when the container is gated in at the inland terminal of origin, typically after transportation by truck. This milestone is derived by identifying the earliest GTIN event for a laden container at an INTE facility before the vessel journey starts.
+            - nullable: true
+            - $ref: '#/components/schemas/EquipmentEvent'
+        loadAtInlandTerminalOrigin:
+          allOf:
+            - description: Indicates the loading of the container at the inland terminal of origin, typically onto a train or barge. This milestone is derived by identifying the earliest LOAD event for a laden container at an INTE facility before the vessel journey starts.
+            - nullable: true
+            - $ref: '#/components/schemas/EquipmentEvent'
+        departureFromInlandTerminalOrigin:
+          allOf:
+            - description: Marks the departure of the container from the inland terminal of origin to a deepsea terminal, typically by train or barge. This milestone is derived by finding the earliest DEPA event at an INTE facility before the vessel journey starts.
+            - nullable: true
+            - $ref: '#/components/schemas/TransportEvent'
+        gateInAtDeepseaTerminalOrigin:
+          allOf:
+            - description: Represents when the container is gated in at the deepsea terminal of origin, typically after transportation by truck when no inland terminal was used. This milestone is derived by identifying the earliest GTIN event for a laden container at a POTE facility before the vessel journey starts.
+            - nullable: true
+            - $ref: '#/components/schemas/EquipmentEvent'
+        arrivalAtDeepseaTerminalOrigin:
+          allOf:
+            - description: Indicates the arrival of the container at the deepsea terminal of origin, typically after transportation by train or barge from an inland terminal. This milestone is derived by finding the earliest ARRI event at a POTE facility before the vessel journey starts, excluding mode of transport VESSEL.
+            - nullable: true
+            - $ref: '#/components/schemas/TransportEvent'
+        dischargeAtDeepseaTerminalOrigin:
+          allOf:
+            - description: Marks the discharge of the container at the deepsea terminal of origin, typically from a train or barge. This milestone is derived by finding the earliest DISC event for a laden container at a POTE facility before the vessel journey starts.
+            - nullable: true
+            - $ref: '#/components/schemas/EquipmentEvent'
+        loadAtDeepseaTerminalOrigin:
+          allOf:
+            - description: Represents the loading of the container onto a vessel at the deepsea terminal of origin. This milestone is derived by identifying the earliest LOAD event for a laden container at a POTE facility before the vessel departure.
+            - nullable: true
+            - $ref: '#/components/schemas/EquipmentEvent'
+        vesselArrivalOrigin:
+          allOf:
+            - description: Indicates the arrival of the vessel at the origin terminal. This milestone is derived by finding the latest ARRI event at a POTE facility, filtered by mode of transport VESSEL, before the vessel journey starts.
+            - nullable: true
+            - $ref: '#/components/schemas/TransportEvent'
+        vesselDepartureOrigin:
+          allOf:
+            - description: Marks the departure of the vessel from the origin terminal with the container on board. This milestone is derived by identifying the earliest DEPA event at a POTE facility for the container journey, filtered by mode of transport VESSEL and only considering CA or TR publisher types. This is considered the start of the vessel journey.
+            - nullable: true
+            - $ref: '#/components/schemas/TransportEvent'
+        vesselArrivalDestination:
+          allOf:
+            - description: Represents the arrival of the vessel at the destination terminal with the container on board. This milestone is derived by identifying the latest ARRI event at a POTE facility for the container journey, filtered by mode of transport VESSEL and only considering CA or TR publisher types. This is considered the vessel's arrival.
+            - nullable: true
+            - $ref: '#/components/schemas/TransportEvent'
+        vesselDepartureDestination:
+          allOf:
+            - description: Marks the departure of the vessel from the destination terminal. This milestone is derived by finding the earliest DEPA event at a POTE facility after the vessel's arrival, filtered by mode of transport VESSEL.
+            - nullable: true
+            - $ref: '#/components/schemas/TransportEvent'
+        dischargeAtDeepseaTerminalDestination:
+          allOf:
+            - description: Indicates the discharge of the container from the vessel at the deepsea terminal of destination. This milestone is derived by identifying the earliest DISC event for a laden container at a POTE facility after the vessel's arrival.
+            - nullable: true
+            - $ref: '#/components/schemas/EquipmentEvent'
+        gateOutFromDeepseaTerminalDestination:
+          allOf:
+            - description: Represents when the container is gated out from the deepsea terminal of destination, typically for transportation by truck. This milestone is derived by finding the earliest GTOT event for a laden container at a POTE facility after the vessel's arrival.
+            - nullable: true
+            - $ref: '#/components/schemas/EquipmentEvent'
+        loadAtDeepseaTerminalDestination:
+          allOf:
+            - description: Marks the loading of the container at the deepsea terminal of destination, typically onto a train or barge. This milestone is derived by identifying the earliest LOAD event for a laden container at a POTE facility after the vessel's arrival.
+            - nullable: true
+            - $ref: '#/components/schemas/EquipmentEvent'
+        departureFromDeepseaTerminalDestination:
+          allOf:
+            - description: Indicates the departure of the container from the deepsea terminal of destination, typically by train or barge. This milestone is derived by finding the earliest DEPA event at a POTE facility after the vessel's arrival, excluding mode of transport VESSEL.
+            - nullable: true
+            - $ref: '#/components/schemas/TransportEvent'
+        arrivalAtInlandTerminalDestination:
+          allOf:
+            - description: Represents the arrival of the container laden on a train or barge at the inland terminal of destination. This milestone is derived by finding the earliest ARRI event at an INTE facility after the vessel's arrival.
+            - nullable: true
+            - $ref: '#/components/schemas/TransportEvent'
+        dischargeAtInlandTerminalDestination:
+          allOf:
+            - description: Marks the discharge of the container at the inland terminal of destination, typically from a train or barge. This milestone is derived by identifying the earliest DISC event for a laden container at an INTE facility after the vessel's arrival.
+            - nullable: true
+            - $ref: '#/components/schemas/EquipmentEvent'
+        gateOutFromInlandTerminalDestination:
+          allOf:
+            - description: Indicates when the container is gated out from the inland terminal of destination, typically for transportation by truck. This milestone is derived by finding the earliest GTOT event for a laden container at an INTE facility after the vessel's arrival.
+            - nullable: true
+            - $ref: '#/components/schemas/EquipmentEvent'
+        gateInEmptyAtDepot:
+          allOf:
+            - description: Represents when the container is gated in at the depot while empty, typically after transportation by truck. This milestone is derived by identifying the earliest GTIN event for an empty container at a DEPO facility after the vessel's arrival.
+            - nullable: true
+            - $ref: '#/components/schemas/EquipmentEvent'
+        arrivalEmptyAtDepot:
+          allOf:
+            - description: Indicates the arrival of an empty container on a train or barge at the depot. This milestone is derived by finding the earliest ARRI event at a DEPO facility after the vessel's arrival.
+            - nullable: true
+            - $ref: '#/components/schemas/TransportEvent'
+        dischargeEmptyAtDepot:
+          allOf:
+            - description: Marks the discharge of an empty container at the depot, typically from a train or barge. This milestone is derived by identifying the earliest DISC event for an empty container at a DEPO facility after the vessel's arrival.
+            - nullable: true
+            - $ref: '#/components/schemas/EquipmentEvent'
+      additionalProperties: false
+    CustomerContainerDto:
+      type: object
+      properties:
+        containerNumber:
+          type: string
+          nullable: true
+        shippingCompany:
+          type: string
+          nullable: true
+        billOfLading:
+          type: string
+          nullable: true
+        houseBillOfLading:
+          type: string
+          nullable: true
+        shipName:
+          type: string
+          nullable: true
+        shipEtdOrigin:
+          type: string
+          nullable: true
+        shipEtaDestination:
+          type: string
+          nullable: true
+        shipEtdDestination:
+          type: string
+          nullable: true
+        terminal:
+          type: string
+          nullable: true
+        file:
+          type: string
+          nullable: true
+        reference:
+          type: string
+          nullable: true
+        relationNumber:
+          type: string
+          nullable: true
+        relationName:
+          type: string
+          nullable: true
+        portOfLoad:
+          type: string
+          nullable: true
+        portOfDischarge:
+          type: string
+          nullable: true
+        sizeType:
+          type: string
+          nullable: true
+        transportType:
+          type: string
+          nullable: true
+        inlandModality:
+          type: string
+          nullable: true
+        inlandTerminal:
+          type: string
+          nullable: true
+        inlandTerminalReference:
+          type: string
+          nullable: true
+      additionalProperties: false
+    CustomerContainerDtoCrudResponse:
+      type: object
+      properties:
+        created:
+          type: boolean
+        updated:
+          type: boolean
+        deleted:
+          type: boolean
+        errorMessage:
+          type: string
+          nullable: true
+        httpStatusCode:
+          type: integer
+          format: int32
+          nullable: true
+        result:
+          $ref: '#/components/schemas/CustomerContainerDto'
+      additionalProperties: false
+    DataSourceEnum:
+      enum:
+        - RWG
+        - Maersk
+        - Cosco
+        - ONE
+        - APM
+        - CMACGM
+        - OOCL
+        - Hapag
+        - HMM
+        - MSC
+        - Evergreen
+        - ZIM
+        - YangMing
+        - ECT
+        - Delta2
+        - Sealand
+        - BCTN
+        - EGS
+      type: string
+    EquipmentEvent:
+      type: object
+      properties:
+        metadata:
+          $ref: https://api.swaggerhub.com/domains/dcsaorg/EVENT_DOMAIN/3.1.0#/components/schemas/metadata
+        payload:
+          $ref: https://api.swaggerhub.com/domains/dcsaorg/EVENT_DOMAIN/3.1.0#/components/schemas/equipmentPayload
+      additionalProperties: false
+    TransportEvent:
+      type: object
+      properties:
+        metadata:
+          $ref: https://api.swaggerhub.com/domains/dcsaorg/EVENT_DOMAIN/3.1.0#/components/schemas/metadata
+        payload:
+          $ref: https://api.swaggerhub.com/domains/dcsaorg/EVENT_DOMAIN/3.1.0#/components/schemas/transportPayload
+      additionalProperties: false
+    EquipmentResponse:
+      type: object
+      properties:
+        containerNumber:
+          type: string
+          nullable: true
+        message:
+          type: string
+          nullable: true
+      additionalProperties: false
+    SeaconEquipment:
+      type: object
+      properties:
+        container:
+          type: string
+          nullable: true
+        scac:
+          type: string
+          nullable: true
+        mbl:
+          type: string
+          nullable: true
+        file:
+          type: string
+          nullable: true
+        reference:
+          type: string
+          nullable: true
+        relnu:
+          type: integer
+          format: int32
+          nullable: true
+        relname:
+          type: string
+          nullable: true
+        hbl:
+          type: string
+          nullable: true
+        loading:
+          type: string
+          nullable: true
+        unloading:
+          type: string
+          nullable: true
+        port_load:
+          type: string
+          nullable: true
+        port_unloaded:
+          type: string
+          nullable: true
+        inland_terminal:
+          type: string
+          nullable: true
+        inland_terminal_reference:
+          type: string
+          nullable: true
+      additionalProperties: false
+  securitySchemes:
+    apiKeyHeader:
+      type: apiKey
+      name: api-key
+      in: header
+    apiKeyQuery:
+      type: apiKey
+      name: api-key
+      in: query
+security:
+  - apiKeyHeader: []
+  - apiKeyQuery: []
