@@ -11,7 +11,7 @@ paths:
       tags:
         - Tracking
       summary: /v1/equipment/{companyEndpointName} - POST
-      description: Equipment endpoint intended to start tracking a container.
+      description: Equipment endpoint intended to start tracking a container. All fields are technically nullable, but if both containerNumber and bkgDocumentReference are not provided, a 400 Bad Request response will be given. If shippingCompany is not provided, tracking your container will take significantly longer to initialize.
       operationId: post-v1-equipment-companyendpointname
       parameters:
         - name: companyEndpointName
@@ -28,6 +28,7 @@ paths:
                 $ref: '#/components/schemas/CustomerContainerDto'
             example:
               - containerNumber: string
+                bkgDocumentReference: string
                 shippingCompany: string
                 billOfLading: string
                 houseBillOfLading: string
@@ -64,6 +65,7 @@ paths:
                   httpStatusCode: 0
                   result:
                     containerNumber: string
+                    bkgDocumentReference: string
                     shippingCompany: string
                     billOfLading: string
                     houseBillOfLading: string
@@ -368,6 +370,9 @@ components:
       type: object
       properties:
         containerNumber:
+          type: string
+          nullable: true
+        bkgDocumentReference:
           type: string
           nullable: true
         shippingCompany:
