@@ -6,12 +6,12 @@ servers:
   - url: https://api.poort8.nl/heywim/tracking
   - url: https://api.poort8.nl/heywim-preview/tracking
 paths:
-  /v1/equipment/{companyEndpointName}:
+  '/v1/equipment/{companyEndpointName}':
     post:
       tags:
         - Tracking
-      summary: /v1/equipment/{companyEndpointName} - POST
-      description: Equipment endpoint intended to start tracking a container. All fields are technically nullable, but if both containerNumber and bkgDocumentReference are not provided, a 400 Bad Request response will be given. If shippingCompany is not provided, tracking your container will take significantly longer to initialize.
+      summary: '/v1/equipment/{companyEndpointName} - POST'
+      description: 'Equipment endpoint intended to start tracking a container or BKG document reference. All fields are nullable, but either containerNumber or bkgDocumentReference and shippingCompany is/are obligatory. If not provided, a 400 Bad Request response will be given. When tracking a containerNumber with shippingCompany not provided, tracking your container will take significantly longer to initialize.'
       operationId: post-v1-equipment-companyendpointname
       parameters:
         - name: companyEndpointName
@@ -112,13 +112,13 @@ paths:
               example:
                 statusCode: 0
                 message: string
-  /v1/events/{companyEndpointName}:
+  '/v1/events/{companyEndpointName}':
     get:
       tags:
         - Tracking
-      summary: /v1/events/{companyEndpointName}?equipmentReference={equipmentReference} - GET
-      description: Events endpoint to get events for certain container(s). Events datamodel according to [DCSA OpenAPI specification for Track & Trace 3.0.0-Beta-1](https://app.swaggerhub.com/apis/dcsaorg/DCSA_TNT/3.0.0-Beta-1). This endpoint may produce a FeederTransportCall. This type of transport event, along with a feeder as a mode of transport/ModeOfTransport enum, is not a DCSA standard. Feeder transport events were implemented for clarity reasons.
-      operationId: get-v1-events-companyendpointname-equipmentreference-equipmentreference
+      summary: '/v1/events/{companyEndpointName} - GET'
+      description: 'Events endpoint to get events for certain container(s) and/or BKG document references. Events datamodel according to [DCSA OpenAPI specification for Track & Trace 3.0.0-Beta-1](https://app.swaggerhub.com/apis/dcsaorg/DCSA_TNT/3.0.0-Beta-1). This endpoint may produce a FeederTransportCall. This type of transport event, along with a feeder as a mode of transport/ModeOfTransport enum, is not a DCSA standard. Feeder transport events were implemented for clarity reasons.'
+      operationId: get-v1-events-companyendpointname
       parameters:
         - name: companyEndpointName
           in: path
@@ -128,8 +128,21 @@ paths:
             type: string
         - name: equipmentReference
           in: query
-          description: Array of container numbers for which the events will be returned.
-          required: true
+          description: Array of container numbers for which events will be returned.
+          schema:
+            type: array
+            items:
+              type: string
+        - name: documentTypeCodes
+          in: query
+          description: Array of documentTypeCodes for which events will be returned. Only support for BKG and only in combination with documentReference.
+          schema:
+            type: array
+            items:
+              type: string
+        - name: documentReference
+          in: query
+          description: Array of document references for which events will be returned. Only support for BKG document references (carrier booking numbers) and only in combination with documentTypeCodes containing BKG.
           schema:
             type: array
             items:
@@ -161,24 +174,37 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiError'
-  /v1/milestones/{companyEndpointName}:
+  '/v1/milestones/{companyEndpointName}':
     get:
       tags:
         - Tracking
-      summary: /v1/milestones/{companyEndpointName}?equipmentReference={equipmentReference} - GET
-      description: Milestones endpoint to get milestones for certain container(s).
-      operationId: get-v1-milestones-companyendpointname-equipmentreference-equipmentreference
+      summary: '/v1/milestones/{companyEndpointName} - GET'
+      description: Milestones endpoint to get milestones for certain container(s). The milestones endpoint is still under development. It is possible that fields are added to the response object without further notice and these are not considered as breaking changes. Field name changes or deletions are seen as breaking changes and you will be informed in time.
+      operationId: get-v1-milestones-companyendpointname
       parameters:
         - name: companyEndpointName
           in: path
-          description: Company name for which the milestonse are requested
+          description: Company name for which the milestones are requested
           required: true
           schema:
             type: string
         - name: equipmentReference
           in: query
           description: Array of container numbers for which the milestones will be returned.
-          required: true
+          schema:
+            type: array
+            items:
+              type: string
+        - name: documentTypeCodes
+          in: query
+          description: Array of documentTypeCodes for which the milestones will be returned. Only support for BKG and only in combination with documentReference.
+          schema:
+            type: array
+            items:
+              type: string
+        - name: documentReference
+          in: query
+          description: Array of document references for which the milestones will be returned. Only support for BKG document references (carrier booking numbers) and only in combination with documentTypeCodes containing BKG.
           schema:
             type: array
             items:
@@ -191,7 +217,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/ContainerJourneyMilestones'
+                  $ref: '#/components/schemas/Milestones'
         '400':
           description: Bad Request
           content:
@@ -230,141 +256,6 @@ components:
         message:
           type: string
           nullable: true
-      additionalProperties: false
-    ContainerJourneyMilestones:
-      type: object
-      properties:
-        fileNumber:
-          description: Identifying number for a container journey. typically a container number, but sometimes another reference such as booking number can be used.
-          example: ABCU1234567
-          type: string
-          nullable: true
-        containerNumber:
-          type: string
-          example: ABCU1234567
-          nullable: true
-        carrier:
-          $ref: '#/components/schemas/DataSourceEnum'
-        gateOutEmptyFromDepot:
-          allOf:
-            - description: Represents when the container is gated out from the depot while empty, typically for transportation by truck. This milestone is derived by identifying the earliest GTOT event for an empty container at a DEPO facility before the journey starts.
-            - nullable: true
-            - $ref: '#/components/schemas/EquipmentEvent'
-        loadEmptyAtDepot:
-          allOf:
-            - description: Indicates the loading of an empty container at the depot, typically for transportation by train or barge. This milestone is derived by identifying the earliest LOAD event for an empty container at a DEPO facility before the journey starts.
-            - nullable: true
-            - $ref: '#/components/schemas/EquipmentEvent'
-        departureEmptyFromDepot:
-          allOf:
-            - description: Marks the departure of a container laden on a train or barge from the depot. This milestone is derived by finding the earliest DEPA event for an empty container at a DEPO facility before the journey starts.
-            - nullable: true
-            - $ref: '#/components/schemas/TransportEvent'
-        gateInAtInlandTerminalOrigin:
-          allOf:
-            - description: Represents when the container is gated in at the inland terminal of origin, typically after transportation by truck. This milestone is derived by identifying the earliest GTIN event for a laden container at an INTE facility before the vessel journey starts.
-            - nullable: true
-            - $ref: '#/components/schemas/EquipmentEvent'
-        loadAtInlandTerminalOrigin:
-          allOf:
-            - description: Indicates the loading of the container at the inland terminal of origin, typically onto a train or barge. This milestone is derived by identifying the earliest LOAD event for a laden container at an INTE facility before the vessel journey starts.
-            - nullable: true
-            - $ref: '#/components/schemas/EquipmentEvent'
-        departureFromInlandTerminalOrigin:
-          allOf:
-            - description: Marks the departure of the container from the inland terminal of origin to a deepsea terminal, typically by train or barge. This milestone is derived by finding the earliest DEPA event at an INTE facility before the vessel journey starts.
-            - nullable: true
-            - $ref: '#/components/schemas/TransportEvent'
-        gateInAtDeepseaTerminalOrigin:
-          allOf:
-            - description: Represents when the container is gated in at the deepsea terminal of origin, typically after transportation by truck when no inland terminal was used. This milestone is derived by identifying the earliest GTIN event for a laden container at a POTE facility before the vessel journey starts.
-            - nullable: true
-            - $ref: '#/components/schemas/EquipmentEvent'
-        arrivalAtDeepseaTerminalOrigin:
-          allOf:
-            - description: Indicates the arrival of the container at the deepsea terminal of origin, typically after transportation by train or barge from an inland terminal. This milestone is derived by finding the earliest ARRI event at a POTE facility before the vessel journey starts, excluding mode of transport VESSEL.
-            - nullable: true
-            - $ref: '#/components/schemas/TransportEvent'
-        dischargeAtDeepseaTerminalOrigin:
-          allOf:
-            - description: Marks the discharge of the container at the deepsea terminal of origin, typically from a train or barge. This milestone is derived by finding the earliest DISC event for a laden container at a POTE facility before the vessel journey starts.
-            - nullable: true
-            - $ref: '#/components/schemas/EquipmentEvent'
-        loadAtDeepseaTerminalOrigin:
-          allOf:
-            - description: Represents the loading of the container onto a vessel at the deepsea terminal of origin. This milestone is derived by identifying the earliest LOAD event for a laden container at a POTE facility before the vessel departure.
-            - nullable: true
-            - $ref: '#/components/schemas/EquipmentEvent'
-        vesselArrivalOrigin:
-          allOf:
-            - description: Indicates the arrival of the vessel at the origin terminal. This milestone is derived by finding the latest ARRI event at a POTE facility, filtered by mode of transport VESSEL, before the vessel journey starts.
-            - nullable: true
-            - $ref: '#/components/schemas/TransportEvent'
-        vesselDepartureOrigin:
-          allOf:
-            - description: Marks the departure of the vessel from the origin terminal with the container on board. This milestone is derived by identifying the earliest DEPA event at a POTE facility for the container journey, filtered by mode of transport VESSEL and only considering CA or TR publisher types. This is considered the start of the vessel journey.
-            - nullable: true
-            - $ref: '#/components/schemas/TransportEvent'
-        vesselArrivalDestination:
-          allOf:
-            - description: Represents the arrival of the vessel at the destination terminal with the container on board. This milestone is derived by identifying the latest ARRI event at a POTE facility for the container journey, filtered by mode of transport VESSEL and only considering CA or TR publisher types. This is considered the vessel's arrival.
-            - nullable: true
-            - $ref: '#/components/schemas/TransportEvent'
-        vesselDepartureDestination:
-          allOf:
-            - description: Marks the departure of the vessel from the destination terminal. This milestone is derived by finding the earliest DEPA event at a POTE facility after the vessel's arrival, filtered by mode of transport VESSEL.
-            - nullable: true
-            - $ref: '#/components/schemas/TransportEvent'
-        dischargeAtDeepseaTerminalDestination:
-          allOf:
-            - description: Indicates the discharge of the container from the vessel at the deepsea terminal of destination. This milestone is derived by identifying the earliest DISC event for a laden container at a POTE facility after the vessel's arrival.
-            - nullable: true
-            - $ref: '#/components/schemas/EquipmentEvent'
-        gateOutFromDeepseaTerminalDestination:
-          allOf:
-            - description: Represents when the container is gated out from the deepsea terminal of destination, typically for transportation by truck. This milestone is derived by finding the earliest GTOT event for a laden container at a POTE facility after the vessel's arrival.
-            - nullable: true
-            - $ref: '#/components/schemas/EquipmentEvent'
-        loadAtDeepseaTerminalDestination:
-          allOf:
-            - description: Marks the loading of the container at the deepsea terminal of destination, typically onto a train or barge. This milestone is derived by identifying the earliest LOAD event for a laden container at a POTE facility after the vessel's arrival.
-            - nullable: true
-            - $ref: '#/components/schemas/EquipmentEvent'
-        departureFromDeepseaTerminalDestination:
-          allOf:
-            - description: Indicates the departure of the container from the deepsea terminal of destination, typically by train or barge. This milestone is derived by finding the earliest DEPA event at a POTE facility after the vessel's arrival, excluding mode of transport VESSEL.
-            - nullable: true
-            - $ref: '#/components/schemas/TransportEvent'
-        arrivalAtInlandTerminalDestination:
-          allOf:
-            - description: Represents the arrival of the container laden on a train or barge at the inland terminal of destination. This milestone is derived by finding the earliest ARRI event at an INTE facility after the vessel's arrival.
-            - nullable: true
-            - $ref: '#/components/schemas/TransportEvent'
-        dischargeAtInlandTerminalDestination:
-          allOf:
-            - description: Marks the discharge of the container at the inland terminal of destination, typically from a train or barge. This milestone is derived by identifying the earliest DISC event for a laden container at an INTE facility after the vessel's arrival.
-            - nullable: true
-            - $ref: '#/components/schemas/EquipmentEvent'
-        gateOutFromInlandTerminalDestination:
-          allOf:
-            - description: Indicates when the container is gated out from the inland terminal of destination, typically for transportation by truck. This milestone is derived by finding the earliest GTOT event for a laden container at an INTE facility after the vessel's arrival.
-            - nullable: true
-            - $ref: '#/components/schemas/EquipmentEvent'
-        gateInEmptyAtDepot:
-          allOf:
-            - description: Represents when the container is gated in at the depot while empty, typically after transportation by truck. This milestone is derived by identifying the earliest GTIN event for an empty container at a DEPO facility after the vessel's arrival.
-            - nullable: true
-            - $ref: '#/components/schemas/EquipmentEvent'
-        arrivalEmptyAtDepot:
-          allOf:
-            - description: Indicates the arrival of an empty container on a train or barge at the depot. This milestone is derived by finding the earliest ARRI event at a DEPO facility after the vessel's arrival.
-            - nullable: true
-            - $ref: '#/components/schemas/TransportEvent'
-        dischargeEmptyAtDepot:
-          allOf:
-            - description: Marks the discharge of an empty container at the depot, typically from a train or barge. This milestone is derived by identifying the earliest DISC event for an empty container at a DEPO facility after the vessel's arrival.
-            - nullable: true
-            - $ref: '#/components/schemas/EquipmentEvent'
       additionalProperties: false
     CustomerContainerDto:
       type: object
@@ -452,27 +343,6 @@ components:
         result:
           $ref: '#/components/schemas/CustomerContainerDto'
       additionalProperties: false
-    DataSourceEnum:
-      enum:
-        - RWG
-        - Maersk
-        - Cosco
-        - ONE
-        - APM
-        - CMACGM
-        - OOCL
-        - Hapag
-        - HMM
-        - MSC
-        - Evergreen
-        - ZIM
-        - YangMing
-        - ECT
-        - Delta2
-        - Sealand
-        - BCTN
-        - EGS
-      type: string
     EquipmentEvent:
       type: object
       properties:
@@ -480,6 +350,173 @@ components:
           $ref: https://api.swaggerhub.com/domains/dcsaorg/EVENT_DOMAIN/3.1.0#/components/schemas/metadata
         payload:
           $ref: https://api.swaggerhub.com/domains/dcsaorg/EVENT_DOMAIN/3.1.0#/components/schemas/equipmentPayload
+      additionalProperties: false
+    Milestones:
+      type: object
+      properties:
+        fileNumber:
+          type: string
+          description: 'Identifying number of the milestones object. Typically a container number, but sometimes another reference such as booking number can be used.'
+          example: ABCU1234567
+        containerNumber:
+          type: string
+          description: Container number of the milestones object.
+          nullable: true
+          example: ABCU1234567
+        carrier:
+          enum:
+            - CMA
+            - COS
+            - EVG
+            - HLC
+            - HMM
+            - MSK
+            - MSC
+            - ONE
+            - OOL
+            - YML
+            - ZIM
+          type: string
+          description: Shipping company for the main voyage of the milestones object.
+          nullable: true
+        gateOutEmptyFromDepot:
+          allOf:
+            - description: 'Represents when the container is gated out from the depot while empty, typically for transportation by truck. This milestone is derived by identifying the earliest GTOT event for an empty container at a DEPO facility before the journey starts.'
+            - nullable: true
+            - $ref: '#/components/schemas/EquipmentEvent'
+        loadEmptyAtDepot:
+          allOf:
+            - description: 'Indicates the loading of an empty container at the depot, typically for transportation by train or barge. This milestone is derived by identifying the earliest LOAD event for an empty container at a DEPO facility before the journey starts.'
+            - nullable: true
+            - $ref: '#/components/schemas/EquipmentEvent'
+        departureEmptyFromDepot:
+          allOf:
+            - description: Marks the departure of a container laden on a train or barge from the depot. This milestone is derived by finding the earliest DEPA event for an empty container at a DEPO facility before the journey starts.
+            - nullable: true
+            - $ref: '#/components/schemas/TransportEvent'
+        gateInAtInlandTerminalOrigin:
+          allOf:
+            - description: 'Represents when the container is gated in at the inland terminal of origin, typically after transportation by truck. This milestone is derived by identifying the earliest GTIN event for a laden container at an INTE facility before the vessel journey starts.'
+            - nullable: true
+            - $ref: '#/components/schemas/EquipmentEvent'
+        loadAtInlandTerminalOrigin:
+          allOf:
+            - description: 'Indicates the loading of the container at the inland terminal of origin, typically onto a train or barge. This milestone is derived by identifying the earliest LOAD event for a laden container at an INTE facility before the vessel journey starts.'
+            - nullable: true
+            - $ref: '#/components/schemas/EquipmentEvent'
+        departureFromInlandTerminalOrigin:
+          allOf:
+            - description: 'Marks the departure of the container from the inland terminal of origin to a deepsea terminal, typically by train or barge. This milestone is derived by finding the earliest DEPA event at an INTE facility before the vessel journey starts.'
+            - nullable: true
+            - $ref: '#/components/schemas/TransportEvent'
+        gateInAtDeepseaTerminalOrigin:
+          allOf:
+            - description: 'Represents when the container is gated in at the deepsea terminal of origin, typically after transportation by truck when no inland terminal was used. This milestone is derived by identifying the earliest GTIN event for a laden container at a POTE facility before the vessel journey starts.'
+            - nullable: true
+            - $ref: '#/components/schemas/EquipmentEvent'
+        arrivalAtDeepseaTerminalOrigin:
+          allOf:
+            - description: 'Indicates the arrival of the container at the deepsea terminal of origin, typically after transportation by train or barge from an inland terminal. This milestone is derived by finding the earliest ARRI event at a POTE facility before the vessel journey starts, excluding mode of transport VESSEL.'
+            - nullable: true
+            - $ref: '#/components/schemas/TransportEvent'
+        dischargeAtDeepseaTerminalOrigin:
+          allOf:
+            - description: 'Marks the discharge of the container at the deepsea terminal of origin, typically from a train or barge. This milestone is derived by finding the earliest DISC event for a laden container at a POTE facility before the vessel journey starts.'
+            - nullable: true
+            - $ref: '#/components/schemas/EquipmentEvent'
+        loadAtDeepseaTerminalOrigin:
+          allOf:
+            - description: Represents the loading of the container onto a vessel at the deepsea terminal of origin. This milestone is derived by identifying the earliest LOAD event for a laden container at a POTE facility before the vessel departure.
+            - nullable: true
+            - $ref: '#/components/schemas/EquipmentEvent'
+        vesselArrivalOrigin:
+          allOf:
+            - description: 'Indicates the arrival of the vessel at the origin terminal. This milestone is derived by finding the latest ARRI event at a POTE facility, filtered by mode of transport VESSEL, before the vessel journey starts.'
+            - nullable: true
+            - $ref: '#/components/schemas/TransportEvent'
+        cargoOpeningAtDeepseaTerminalOrigin:
+          allOf:
+            - description: Indicates the cargo opening time at the origin deepsea terminal. This milestone is derived by finding the SHIPMENT event with document type code DEI (Delivery instructions) and document reference EFC (Earliest full-container delivery date).
+            - nullable: true
+            - $ref: '#/components/schemas/ShipmentEvent'
+        cargoClosingAtDeepseaTerminalOrigin:
+          allOf:
+            - description: Indicates the cargo closing time at the origin deepsea terminal. This milestone is derived by finding the SHIPMENT event with document type code DEI (Delivery instructions) and document reference FCO (FCL delivery cut-off).
+            - nullable: true
+            - $ref: '#/components/schemas/ShipmentEvent'
+        vesselDepartureOrigin:
+          allOf:
+            - description: 'Marks the departure of the vessel from the origin terminal with the container on board. This milestone is derived by identifying the earliest DEPA event at a POTE facility for the container journey, filtered by mode of transport VESSEL and only considering CA or TR publisher types. This is considered the start of the vessel journey.'
+            - nullable: true
+            - $ref: '#/components/schemas/TransportEvent'
+        vesselArrivalDestination:
+          allOf:
+            - description: 'Represents the arrival of the vessel at the destination terminal with the container on board. This milestone is derived by identifying the latest ARRI event at a POTE facility for the container journey, filtered by mode of transport VESSEL and only considering CA or TR publisher types. This is considered the vessel''s arrival.'
+            - nullable: true
+            - $ref: '#/components/schemas/TransportEvent'
+        vesselDepartureDestination:
+          allOf:
+            - description: 'Marks the departure of the vessel from the destination terminal. This milestone is derived by finding the earliest DEPA event at a POTE facility after the vessel''s arrival, filtered by mode of transport VESSEL.'
+            - nullable: true
+            - $ref: '#/components/schemas/TransportEvent'
+        dischargeAtDeepseaTerminalDestination:
+          allOf:
+            - description: Indicates the discharge of the container from the vessel at the deepsea terminal of destination. This milestone is derived by identifying the earliest DISC event for a laden container at a POTE facility after the vessel's arrival.
+            - nullable: true
+            - $ref: '#/components/schemas/EquipmentEvent'
+        gateOutFromDeepseaTerminalDestination:
+          allOf:
+            - description: 'Represents when the container is gated out from the deepsea terminal of destination, typically for transportation by truck. This milestone is derived by finding the earliest GTOT event for a laden container at a POTE facility after the vessel''s arrival.'
+            - nullable: true
+            - $ref: '#/components/schemas/EquipmentEvent'
+        loadAtDeepseaTerminalDestination:
+          allOf:
+            - description: 'Marks the loading of the container at the deepsea terminal of destination, typically onto a train or barge. This milestone is derived by identifying the earliest LOAD event for a laden container at a POTE facility after the vessel''s arrival.'
+            - nullable: true
+            - $ref: '#/components/schemas/EquipmentEvent'
+        departureFromDeepseaTerminalDestination:
+          allOf:
+            - description: 'Indicates the departure of the container from the deepsea terminal of destination, typically by train or barge. This milestone is derived by finding the earliest DEPA event at a POTE facility after the vessel''s arrival, excluding mode of transport VESSEL.'
+            - nullable: true
+            - $ref: '#/components/schemas/TransportEvent'
+        arrivalAtInlandTerminalDestination:
+          allOf:
+            - description: Represents the arrival of the container laden on a train or barge at the inland terminal of destination. This milestone is derived by finding the earliest ARRI event at an INTE facility after the vessel's arrival.
+            - nullable: true
+            - $ref: '#/components/schemas/TransportEvent'
+        dischargeAtInlandTerminalDestination:
+          allOf:
+            - description: 'Marks the discharge of the container at the inland terminal of destination, typically from a train or barge. This milestone is derived by identifying the earliest DISC event for a laden container at an INTE facility after the vessel''s arrival.'
+            - nullable: true
+            - $ref: '#/components/schemas/EquipmentEvent'
+        gateOutFromInlandTerminalDestination:
+          allOf:
+            - description: 'Indicates when the container is gated out from the inland terminal of destination, typically for transportation by truck. This milestone is derived by finding the earliest GTOT event for a laden container at an INTE facility after the vessel''s arrival.'
+            - nullable: true
+            - $ref: '#/components/schemas/EquipmentEvent'
+        gateInEmptyAtDepot:
+          allOf:
+            - description: 'Represents when the container is gated in at the depot while empty, typically after transportation by truck. This milestone is derived by identifying the earliest GTIN event for an empty container at a DEPO facility after the vessel''s arrival.'
+            - nullable: true
+            - $ref: '#/components/schemas/EquipmentEvent'
+        arrivalEmptyAtDepot:
+          allOf:
+            - description: Indicates the arrival of an empty container on a train or barge at the depot. This milestone is derived by finding the earliest ARRI event at a DEPO facility after the vessel's arrival.
+            - nullable: true
+            - $ref: '#/components/schemas/TransportEvent'
+        dischargeEmptyAtDepot:
+          allOf:
+            - description: 'Marks the discharge of an empty container at the depot, typically from a train or barge. This milestone is derived by identifying the earliest DISC event for an empty container at a DEPO facility after the vessel''s arrival.'
+            - nullable: true
+            - $ref: '#/components/schemas/EquipmentEvent'
+      additionalProperties: false
+    ShipmentEvent:
+      type: object
+      properties:
+        metadata:
+          $ref: https://api.swaggerhub.com/domains/dcsaorg/EVENT_DOMAIN/3.1.0#/components/schemas/metadata
+        payload:
+          $ref: https://api.swaggerhub.com/domains/dcsaorg/EVENT_DOMAIN/3.1.0#/components/schemas/shipmentPayload
       additionalProperties: false
     TransportEvent:
       type: object
@@ -499,5 +536,5 @@ components:
       name: api-key
       in: query
 security:
-  - apiKeyHeader: []
-  - apiKeyQuery: []
+  - apiKeyHeader: [ ]
+  - apiKeyQuery: [ ]
