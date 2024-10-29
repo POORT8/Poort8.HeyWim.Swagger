@@ -416,7 +416,7 @@ components:
             - $ref: '#/components/schemas/EquipmentEvent'
         arrivalAtDeepseaTerminalOrigin:
           allOf:
-            - description: 'Indicates the arrival of the container at the deepsea terminal of origin, typically after transportation by train or barge from an inland temrinal. This milestone is derived by finding the earliest ARRI event at a POTE facility before the vessel journey starts, excluding mode of transport VESSEL.'
+            - description: 'Indicates the arrival of the container at the deepsea terminal of origin, typically after transportation by train or barge from an inland terminal. This milestone is derived by finding the earliest ARRI event at a POTE facility before the vessel journey starts, excluding mode of transport VESSEL.'
             - nullable: true
             - $ref: '#/components/schemas/TransportEvent'
         dischargeAtDeepseaTerminalOrigin:
@@ -446,12 +446,12 @@ components:
             - $ref: '#/components/schemas/ShipmentEvent'
         vesselDepartureOrigin:
           allOf:
-            - description: 'Marks the departure of the vessel from the origin terminal with the container on board. This milestone is derived by identifying the earliest DEPA event at a POTE facility for the container journey, filtered by mode of transport VESSEL and only considering CA or TR publisher types. This is consider the start of the vessel journey.'
+            - description: 'Marks the departure of the vessel from the origin terminal with the container on board. This milestone is derived by identifying the earliest DEPA event at a POTE facility for the container journey, filtered by mode of transport VESSEL and only considering CA or TR publisher types. This is considered the start of the vessel journey.'
             - nullable: true
             - $ref: '#/components/schemas/TransportEvent'
         vesselArrivalDestination:
           allOf:
-            - description: 'Represents the arrival of the vessel at the destination terminal with the container on board. This milestone is derived by identifying the latest ARRI event at a POTE facility for the container journey, filtered by mode of transport VESSEL and only considering CA or TR publisher types. This is consider the vessel''s arrival.'
+            - description: 'Represents the arrival of the vessel at the destination terminal with the container on board. This milestone is derived by identifying the latest ARRI event at a POTE facility for the container journey, filtered by mode of transport VESSEL and only considering CA or TR publisher types. This is considered the vessel''s arrival.'
             - nullable: true
             - $ref: '#/components/schemas/TransportEvent'
         vesselDepartureDestination:
