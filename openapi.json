@@ -1,6 +1,11 @@
 {
   "openapi": "3.0.1",
   "info": {
+    "description": "Dit is de API-documentatie voor HeyWim Container Tracking, ontwikkeld door [Poort8](https://www.poort8.nl), experts in slimme oplossingen voor datadelen. Met deze API kunt u eenvoudig betrouwbare en gedetailleerde informatie over uw containers integreren in uw eigen systemen. Meer informatie over het product vindt u op [heywim.nl](https://www.heywim.nl).",
+    "termsOfService": "https://www.iubenda.com/privacy-policy/19051360/legal?ifr=true&height=800&newmarkup=no",
+    "contact": {
+      "email": "hello@poort8.nl"
+    },
     "title": "Poort8-HeyWim-Tracking",
     "version": "1.0"
   },
