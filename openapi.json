@@ -24,7 +24,7 @@
           "Tracking"
         ],
         "summary": "/v1/equipment/{companyEndpointName} - POST",
-        "description": "Equipment endpoint intended to start tracking a container or BKG document reference. All fields are nullable, but either containerNumber or bkgDocumentReference and shippingCompany is/are obligatory. If not provided, a 400 Bad Request response will be given. When tracking a containerNumber with shippingCompany not provided, tracking your container will take significantly longer to initialize.",
+        "description": "The Equipment endpoint is used to initiate tracking for a container or booking number. The shippingCompany field is required, while all other fields are optional. However, at least one of containerNumber or bkgDocumentReference must be provided. Validation is performed based on the submitted fields. If validation fails, the response will return a 400 Bad Request status for the corresponding containerNumber or bkgDocumentReference, along with the reasons listed in the validationErrors array. Note: ShipName validation is disabled when actually posting a container, unlike the /equipment-validate endpoint where it remains active.",
         "operationId": "post-v1-equipment-companyendpointname",
         "parameters": [
           {
@@ -91,6 +91,13 @@
                     "deleted": true,
                     "errorMessage": "string",
                     "httpStatusCode": 0,
+                    "validationErrors": [
+                      {
+                        "property": "string",
+                        "value": "string",
+                        "error": "string"
+                      }
+                    ],
                     "result": {
                       "containerNumber": "string",
                       "bkgDocumentReference": "string",
@@ -373,6 +380,107 @@
           }
         }
       }
+    },
+    "/v1/equipment-validate": {
+      "post": {
+        "tags": [
+          "Tracking"
+        ],
+        "summary": "/v1/equipment-validate - POST",
+        "description": "The validation endpoint is designed solely to check the input for a POST /tracking/equipment request, using either a container number or booking document reference. Validation is performed based on the submitted fields. If validation errors are found, the response will return a 400 Bad Request status for the corresponding containerNumber or bkgDocumentReference, with detailed reasons provided in the validationErrors array.",
+        "operationId": "post-v1-equipment-validate",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/CustomerContainerDto"
+                }
+              },
+              "example": [
+                {
+                  "containerNumber": "string",
+                  "bkgDocumentReference": "string",
+                  "shippingCompany": "string",
+                  "billOfLading": "string",
+                  "houseBillOfLading": "string",
+                  "shipName": "string",
+                  "shipEtdOrigin": "string",
+                  "shipEtaDestination": "string",
+                  "shipEtdDestination": "string",
+                  "terminal": "string",
+                  "file": "string",
+                  "reference": "string",
+                  "relationNumber": "string",
+                  "relationName": "string",
+                  "portOfLoad": "string",
+                  "portOfDischarge": "string",
+                  "sizeType": "string",
+                  "transportType": "string",
+                  "inlandModality": "string",
+                  "inlandTerminal": "string",
+                  "inlandTerminalReference": "string"
+                }
+              ]
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CustomerContainerDtoCrudResponse"
+                  }
+                },
+                "example": [
+                  {
+                    "created": true,
+                    "updated": true,
+                    "deleted": true,
+                    "errorMessage": "string",
+                    "httpStatusCode": 0,
+                    "validationErrors": [
+                      {
+                        "property": "string",
+                        "value": "string",
+                        "error": "string"
+                      }
+                    ],
+                    "result": {
+                      "containerNumber": "string",
+                      "bkgDocumentReference": "string",
+                      "shippingCompany": "string",
+                      "billOfLading": "string",
+                      "houseBillOfLading": "string",
+                      "shipName": "string",
+                      "shipEtdOrigin": "string",
+                      "shipEtaDestination": "string",
+                      "shipEtdDestination": "string",
+                      "terminal": "string",
+                      "file": "string",
+                      "reference": "string",
+                      "relationNumber": "string",
+                      "relationName": "string",
+                      "portOfLoad": "string",
+                      "portOfDischarge": "string",
+                      "sizeType": "string",
+                      "transportType": "string",
+                      "inlandModality": "string",
+                      "inlandTerminal": "string",
+                      "inlandTerminalReference": "string"
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -502,6 +610,13 @@
             "format": "int32",
             "nullable": true
           },
+          "validationErrors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "nullable": true
+          },
           "result": {
             "$ref": "#/components/schemas/CustomerContainerDto"
           }
@@ -536,6 +651,7 @@
           },
           "carrier": {
             "enum": [
+              "AKS",
               "CMA",
               "COS",
               "EVG",
@@ -558,8 +674,8 @@
                 "description": "Represents when the container is gated out from the depot while empty, typically for transportation by truck. This milestone is derived by identifying the earliest GTOT event for an empty container at a DEPO facility before the journey starts."
               },
               {
-                "nullable": true
-              },
+            "nullable": true
+          },
               {
                 "$ref": "#/components/schemas/EquipmentEvent"
               }
@@ -571,8 +687,8 @@
                 "description": "Indicates the loading of an empty container at the depot, typically for transportation by train or barge. This milestone is derived by identifying the earliest LOAD event for an empty container at a DEPO facility before the journey starts."
               },
               {
-                "nullable": true
-              },
+            "nullable": true
+          },
               {
                 "$ref": "#/components/schemas/EquipmentEvent"
               }
@@ -584,8 +700,8 @@
                 "description": "Marks the departure of a container laden on a train or barge from the depot. This milestone is derived by finding the earliest DEPA event for an empty container at a DEPO facility before the journey starts."
               },
               {
-                "nullable": true
-              },
+            "nullable": true
+          },
               {
                 "$ref": "#/components/schemas/TransportEvent"
               }
@@ -597,8 +713,8 @@
                 "description": "Represents when the container is gated in at the inland terminal of origin, typically after transportation by truck. This milestone is derived by identifying the earliest GTIN event for a laden container at an INTE facility before the vessel journey starts."
               },
               {
-                "nullable": true
-              },
+            "nullable": true
+          },
               {
                 "$ref": "#/components/schemas/EquipmentEvent"
               }
@@ -610,8 +726,8 @@
                 "description": "Indicates the loading of the container at the inland terminal of origin, typically onto a train or barge. This milestone is derived by identifying the earliest LOAD event for a laden container at an INTE facility before the vessel journey starts."
               },
               {
-                "nullable": true
-              },
+            "nullable": true
+          },
               {
                 "$ref": "#/components/schemas/EquipmentEvent"
               }
@@ -623,8 +739,8 @@
                 "description": "Marks the departure of the container from the inland terminal of origin to a deepsea terminal, typically by train or barge. This milestone is derived by finding the earliest DEPA event at an INTE facility before the vessel journey starts."
               },
               {
-                "nullable": true
-              },
+            "nullable": true
+          },
               {
                 "$ref": "#/components/schemas/TransportEvent"
               }
@@ -636,8 +752,8 @@
                 "description": "Represents when the container is gated in at the deepsea terminal of origin, typically after transportation by truck when no inland terminal was used. This milestone is derived by identifying the earliest GTIN event for a laden container at a POTE facility before the vessel journey starts."
               },
               {
-                "nullable": true
-              },
+            "nullable": true
+          },
               {
                 "$ref": "#/components/schemas/EquipmentEvent"
               }
@@ -649,8 +765,8 @@
                 "description": "Indicates the arrival of the container at the deepsea terminal of origin, typically after transportation by train or barge from an inland terminal. This milestone is derived by finding the earliest ARRI event at a POTE facility before the vessel journey starts, excluding mode of transport VESSEL."
               },
               {
-                "nullable": true
-              },
+            "nullable": true
+          },
               {
                 "$ref": "#/components/schemas/TransportEvent"
               }
@@ -662,8 +778,8 @@
                 "description": "Marks the discharge of the container at the deepsea terminal of origin, typically from a train or barge. This milestone is derived by finding the earliest DISC event for a laden container at a POTE facility before the vessel journey starts."
               },
               {
-                "nullable": true
-              },
+            "nullable": true
+          },
               {
                 "$ref": "#/components/schemas/EquipmentEvent"
               }
@@ -675,8 +791,8 @@
                 "description": "Represents the loading of the container onto a vessel at the deepsea terminal of origin. This milestone is derived by identifying the earliest LOAD event for a laden container at a POTE facility before the vessel departure."
               },
               {
-                "nullable": true
-              },
+            "nullable": true
+          },
               {
                 "$ref": "#/components/schemas/EquipmentEvent"
               }
@@ -688,8 +804,8 @@
                 "description": "Indicates the arrival of the vessel at the origin terminal. This milestone is derived by finding the latest ARRI event at a POTE facility, filtered by mode of transport VESSEL, before the vessel journey starts."
               },
               {
-                "nullable": true
-              },
+            "nullable": true
+          },
               {
                 "$ref": "#/components/schemas/TransportEvent"
               }
@@ -701,8 +817,8 @@
                 "description": "Indicates the cargo opening time at the origin deepsea terminal. This milestone is derived by finding the SHIPMENT event with document type code DEI (Delivery instructions) and document reference EFC (Earliest full-container delivery date)."
               },
               {
-                "nullable": true
-              },
+            "nullable": true
+          },
               {
                 "$ref": "#/components/schemas/ShipmentEvent"
               }
@@ -714,8 +830,8 @@
                 "description": "Indicates the cargo closing time at the origin deepsea terminal. This milestone is derived by finding the SHIPMENT event with document type code DEI (Delivery instructions) and document reference FCO (FCL delivery cut-off)."
               },
               {
-                "nullable": true
-              },
+            "nullable": true
+          },
               {
                 "$ref": "#/components/schemas/ShipmentEvent"
               }
@@ -727,8 +843,8 @@
                 "description": "Marks the departure of the vessel from the origin terminal with the container on board. This milestone is derived by identifying the earliest DEPA event at a POTE facility for the container journey, filtered by mode of transport VESSEL and only considering CA or TR publisher types. This is considered the start of the vessel journey."
               },
               {
-                "nullable": true
-              },
+            "nullable": true
+          },
               {
                 "$ref": "#/components/schemas/TransportEvent"
               }
@@ -740,8 +856,8 @@
                 "description": "Represents the arrival of the vessel at the destination terminal with the container on board. This milestone is derived by identifying the latest ARRI event at a POTE facility for the container journey, filtered by mode of transport VESSEL and only considering CA or TR publisher types. This is considered the vessel's arrival."
               },
               {
-                "nullable": true
-              },
+            "nullable": true
+          },
               {
                 "$ref": "#/components/schemas/TransportEvent"
               }
@@ -753,8 +869,8 @@
                 "description": "Marks the departure of the vessel from the destination terminal. This milestone is derived by finding the earliest DEPA event at a POTE facility after the vessel's arrival, filtered by mode of transport VESSEL."
               },
               {
-                "nullable": true
-              },
+            "nullable": true
+          },
               {
                 "$ref": "#/components/schemas/TransportEvent"
               }
@@ -766,8 +882,8 @@
                 "description": "Indicates the discharge of the container from the vessel at the deepsea terminal of destination. This milestone is derived by identifying the earliest DISC event for a laden container at a POTE facility after the vessel's arrival."
               },
               {
-                "nullable": true
-              },
+            "nullable": true
+          },
               {
                 "$ref": "#/components/schemas/EquipmentEvent"
               }
@@ -779,8 +895,8 @@
                 "description": "Represents when the container is gated out from the deepsea terminal of destination, typically for transportation by truck. This milestone is derived by finding the earliest GTOT event for a laden container at a POTE facility after the vessel's arrival."
               },
               {
-                "nullable": true
-              },
+            "nullable": true
+          },
               {
                 "$ref": "#/components/schemas/EquipmentEvent"
               }
@@ -792,8 +908,8 @@
                 "description": "Marks the loading of the container at the deepsea terminal of destination, typically onto a train or barge. This milestone is derived by identifying the earliest LOAD event for a laden container at a POTE facility after the vessel's arrival."
               },
               {
-                "nullable": true
-              },
+            "nullable": true
+          },
               {
                 "$ref": "#/components/schemas/EquipmentEvent"
               }
@@ -805,8 +921,8 @@
                 "description": "Indicates the departure of the container from the deepsea terminal of destination, typically by train or barge. This milestone is derived by finding the earliest DEPA event at a POTE facility after the vessel's arrival, excluding mode of transport VESSEL."
               },
               {
-                "nullable": true
-              },
+            "nullable": true
+          },
               {
                 "$ref": "#/components/schemas/TransportEvent"
               }
@@ -816,10 +932,10 @@
             "allOf": [
               {
                 "description": "Represents the arrival of the container laden on a train or barge at the inland terminal of destination. This milestone is derived by finding the earliest ARRI event at an INTE facility after the vessel's arrival."
-              },
+          },
               {
-                "nullable": true
-              },
+            "nullable": true
+          },
               {
                 "$ref": "#/components/schemas/TransportEvent"
               }
@@ -829,36 +945,36 @@
             "allOf": [
               {
                 "description": "Marks the discharge of the container at the inland terminal of destination, typically from a train or barge. This milestone is derived by identifying the earliest DISC event for a laden container at an INTE facility after the vessel's arrival."
-              },
+          },
               {
-                "nullable": true
-              },
+            "nullable": true
+          },
               {
                 "$ref": "#/components/schemas/EquipmentEvent"
-              }
+          }
             ]
-          },
+        },
           "gateOutFromInlandTerminalDestination": {
             "allOf": [
               {
                 "description": "Indicates when the container is gated out from the inland terminal of destination, typically for transportation by truck. This milestone is derived by finding the earliest GTOT event for a laden container at an INTE facility after the vessel's arrival."
-              },
+      },
               {
-                "nullable": true
-              },
+            "nullable": true
+          },
               {
                 "$ref": "#/components/schemas/EquipmentEvent"
-              }
+          }
             ]
-          },
+        },
           "gateInEmptyAtDepot": {
             "allOf": [
               {
                 "description": "Represents when the container is gated in at the depot while empty, typically after transportation by truck. This milestone is derived by identifying the earliest GTIN event for an empty container at a DEPO facility after the vessel's arrival."
-              },
+      },
               {
-                "nullable": true
-              },
+            "nullable": true
+          },
               {
                 "$ref": "#/components/schemas/EquipmentEvent"
               }
@@ -868,10 +984,10 @@
             "allOf": [
               {
                 "description": "Indicates the arrival of an empty container on a train or barge at the depot. This milestone is derived by finding the earliest ARRI event at a DEPO facility after the vessel's arrival."
-              },
+          },
               {
-                "nullable": true
-              },
+            "nullable": true
+          },
               {
                 "$ref": "#/components/schemas/TransportEvent"
               }
@@ -881,10 +997,10 @@
             "allOf": [
               {
                 "description": "Marks the discharge of an empty container at the depot, typically from a train or barge. This milestone is derived by identifying the earliest DISC event for an empty container at a DEPO facility after the vessel's arrival."
-              },
+          },
               {
-                "nullable": true
-              },
+            "nullable": true
+          },
               {
                 "$ref": "#/components/schemas/EquipmentEvent"
               }
@@ -913,6 +1029,24 @@
           },
           "payload": {
             "$ref": "https://api.swaggerhub.com/domains/dcsaorg/EVENT_DOMAIN/3.1.0#/components/schemas/transportPayload"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ValidationError": {
+        "type": "object",
+        "properties": {
+          "property": {
+            "type": "string",
+            "nullable": true
+          },
+          "value": {
+            "type": "string",
+            "nullable": true
+          },
+          "error": {
+            "type": "string",
+            "nullable": true
           }
         },
         "additionalProperties": false
