@@ -63,6 +63,10 @@ paths:
                   deleted: true
                   errorMessage: string
                   httpStatusCode: 0
+                  validationErrors:
+                    - property: string
+                      value: string
+                      error: string
                   result:
                     containerNumber: string
                     bkgDocumentReference: string
@@ -245,6 +249,82 @@ paths:
               example:
                 statusCode: 0
                 message: string
+  /v1/equipment-validate:
+    post:
+      tags:
+        - Tracking
+      summary: /v1/equipment-validate - POST
+      operationId: post-v1-equipment-validate
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/CustomerContainerDto'
+            example:
+              - containerNumber: string
+                bkgDocumentReference: string
+                shippingCompany: string
+                billOfLading: string
+                houseBillOfLading: string
+                shipName: string
+                shipEtdOrigin: string
+                shipEtaDestination: string
+                shipEtdDestination: string
+                terminal: string
+                file: string
+                reference: string
+                relationNumber: string
+                relationName: string
+                portOfLoad: string
+                portOfDischarge: string
+                sizeType: string
+                transportType: string
+                inlandModality: string
+                inlandTerminal: string
+                inlandTerminalReference: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CustomerContainerDtoCrudResponse'
+              example:
+                - created: true
+                  updated: true
+                  deleted: true
+                  errorMessage: string
+                  httpStatusCode: 0
+                  validationErrors:
+                    - property: string
+                      value: string
+                      error: string
+                  result:
+                    containerNumber: string
+                    bkgDocumentReference: string
+                    shippingCompany: string
+                    billOfLading: string
+                    houseBillOfLading: string
+                    shipName: string
+                    shipEtdOrigin: string
+                    shipEtaDestination: string
+                    shipEtdDestination: string
+                    terminal: string
+                    file: string
+                    reference: string
+                    relationNumber: string
+                    relationName: string
+                    portOfLoad: string
+                    portOfDischarge: string
+                    sizeType: string
+                    transportType: string
+                    inlandModality: string
+                    inlandTerminal: string
+                    inlandTerminalReference: string
 components:
   schemas:
     ApiError:
@@ -340,6 +420,11 @@ components:
           type: integer
           format: int32
           nullable: true
+        validationErrors:
+          type: array
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          nullable: true
         result:
           $ref: '#/components/schemas/CustomerContainerDto'
       additionalProperties: false
@@ -365,6 +450,7 @@ components:
           example: ABCU1234567
         carrier:
           enum:
+            - AKS
             - CMA
             - COS
             - EVG
@@ -525,6 +611,19 @@ components:
           $ref: https://api.swaggerhub.com/domains/dcsaorg/EVENT_DOMAIN/3.1.0#/components/schemas/metadata
         payload:
           $ref: https://api.swaggerhub.com/domains/dcsaorg/EVENT_DOMAIN/3.1.0#/components/schemas/transportPayload
+      additionalProperties: false
+    ValidationError:
+      type: object
+      properties:
+        property:
+          type: string
+          nullable: true
+        value:
+          type: string
+          nullable: true
+        error:
+          type: string
+          nullable: true
       additionalProperties: false
   securitySchemes:
     apiKeyHeader:
