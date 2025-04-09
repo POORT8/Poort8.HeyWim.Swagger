@@ -11,7 +11,7 @@ paths:
       tags:
         - Tracking
       summary: '/v1/equipment/{companyEndpointName} - POST'
-      description: 'Equipment endpoint intended to start tracking a container or BKG document reference. The field shippingCompany is obligatory. All other fields are nullable, but either containerNumber or bkgDocumentReference must be present. In case of validation errors, the response will indicate a 400 Bad Request statuscode for that containerNumber/bkgDocumentReference with the reason(s) given in the validationErrors array. Note: ShipName input validation is turned off when actually posting a container in contrary to the /equipment-validate endpoint.'
+      description: 'The Equipment endpoint is used to initiate tracking for a container or booking number. The shippingCompany field is required, while all other fields are optional. However, at least one of containerNumber or bkgDocumentReference must be provided. Validation is performed based on the submitted fields. If validation fails, the response will return a 400 Bad Request status for the corresponding containerNumber or bkgDocumentReference, along with the reasons listed in the validationErrors array. Note: ShipName validation is disabled when actually posting a container, unlike the /equipment-validate endpoint where it remains active.'
       operationId: post-v1-equipment-companyendpointname
       parameters:
         - name: companyEndpointName
@@ -254,7 +254,7 @@ paths:
       tags:
         - Tracking
       summary: /v1/equipment-validate - POST
-      description: 'Validation endpoint intended to only check/validate the input for a POST /tracking/equipment call for a container or BKG document reference. In case of validation errors, the response will indicate a 400 Bad Request statuscode for that containerNumber/bkgDocumentReference with the reason(s) given in the validationErrors array.'
+      description: 'The validation endpoint is designed solely to check the input for a POST /tracking/equipment request, using either a container number or booking document reference. Validation is performed based on the submitted fields. If validation errors are found, the response will return a 400 Bad Request status for the corresponding containerNumber or bkgDocumentReference, with detailed reasons provided in the validationErrors array.'
       operationId: post-v1-equipment-validate
       requestBody:
         content:
