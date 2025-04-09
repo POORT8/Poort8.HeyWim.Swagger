@@ -11,7 +11,7 @@ paths:
       tags:
         - Tracking
       summary: '/v1/equipment/{companyEndpointName} - POST'
-      description: 'Equipment endpoint intended to start tracking a container or BKG document reference. All fields are nullable, but either containerNumber or bkgDocumentReference and shippingCompany is/are obligatory. If not provided, a 400 Bad Request response will be given. When tracking a containerNumber with shippingCompany not provided, tracking your container will take significantly longer to initialize.'
+      description: 'Equipment endpoint intended to start tracking a container or BKG document reference. The field shippingCompany is obligatory. All other fields are nullable, but either containerNumber or bkgDocumentReference must be present. In case of validation errors, the response will indicate a 400 Bad Request statuscode for that containerNumber/bkgDocumentReference with the reason(s) given in the validationErrors array. Note: ShipName input validation is turned off when actually posting a container in contrary to the /equipment-validate endpoint.'
       operationId: post-v1-equipment-companyendpointname
       parameters:
         - name: companyEndpointName
@@ -254,6 +254,7 @@ paths:
       tags:
         - Tracking
       summary: /v1/equipment-validate - POST
+      description: 'Validation endpoint intended to only check/validate the input for a POST /tracking/equipment call for a container or BKG document reference. In case of validation errors, the response will indicate a 400 Bad Request statuscode for that containerNumber/bkgDocumentReference with the reason(s) given in the validationErrors array.'
       operationId: post-v1-equipment-validate
       requestBody:
         content:
