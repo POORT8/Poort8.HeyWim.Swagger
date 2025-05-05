@@ -2,6 +2,18 @@ openapi: 3.0.1
 info:
   title: Poort8-HeyWim-Tracking
   version: '1.0'
+  description: |
+    This API provides endpoints for tracking containers and retrieving transport events and milestones, aligned with DCSA standards.
+
+    ### Publisher-specific Assumptions:
+
+    The data returned by /events and /milestones may vary by publisher. Below is an overview of known differences in field interpretation.
+
+    | Publisher | Field(s) | Source description | Interpretation HeyWim |
+    |-----------|-----------|-----------|-----------|
+    | `EGS`       | `Pickup.EtaDate`, `Pickup.Etatime`, `Pickup.DeepseaTerminalEtdDate`, `Pickup.DeepseaTerminalEtdTime`, `Delivery.EtdDate`, `Delivery.EtdTime`, `Delivery.DeepseaTerminalEtaDate`, `Delivery.DeepseaTerminalEtaTime`  | ETA values only; not updated to ATA. | As a result, only `EST` events and no `ACT` events are available. Use a separate event to determine actual arrival, if available.|
+    |           | `Pickup.GateInDate`, `Pickup.GateInTime`   | Represents gate-in across all modalities. | For modality `Barge` and `Train`, this is mapped to a `DISC` event. For other modalities, including `Truck`, this is mapped to `GTIN` |
+    |*work in progress* | | |
 servers:
   - url: https://api.poort8.nl/heywim/tracking
   - url: https://api.poort8.nl/heywim-preview/tracking
