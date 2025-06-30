@@ -443,6 +443,7 @@ components:
       additionalProperties: false
     EquipmentEvent:
       type: object
+      description: 'Equipment event following DCSA standards.'
       properties:
         metadata:
           $ref: https://api.swaggerhub.com/domains/dcsaorg/EVENT_DOMAIN/3.1.0#/components/schemas/metadata
@@ -611,6 +612,7 @@ components:
       additionalProperties: false
     ShipmentEvent:
       type: object
+      description: 'Shipment event following DCSA standards. Note: This implementation may differ from the DCSA standard as it could include a TransportCall.'
       properties:
         metadata:
           $ref: https://api.swaggerhub.com/domains/dcsaorg/EVENT_DOMAIN/3.1.0#/components/schemas/metadata
@@ -619,6 +621,7 @@ components:
       additionalProperties: false
     TransportEvent:
       type: object
+      description: 'Transport event following DCSA standards.'
       properties:
         metadata:
           $ref: https://api.swaggerhub.com/domains/dcsaorg/EVENT_DOMAIN/3.1.0#/components/schemas/metadata
