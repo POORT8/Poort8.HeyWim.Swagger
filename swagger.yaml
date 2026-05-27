@@ -5,6 +5,34 @@ info:
   description: |
     This API provides endpoints for tracking containers and retrieving transport events and milestones, aligned with DCSA standards.
 
+    ## Import flow
+
+    Use this flow when tracking an inbound container arriving at its destination, by posting your tracking request to the `/v1/equipment/{companyEndpointName}` endpoint.
+
+    **Required fields:**
+    - `containerNumber` — the container number to track
+    - `shippingCompany` — the carrier operating the main vessel
+
+    **Recommended:**
+    - `billOfLading` — providing the B/L improves data matching and enrichment
+
+    > Note: HeyWim also supports a terminal-only approach for specific integrations. Contact Poort8 for details.
+
+    ## Export flow
+
+    Use this flow when tracking an outbound shipment departing from the origin terminal, by posting your tracking request to the `/v1/equipment/{companyEndpointName}` endpoint.
+
+    **Required fields:**
+    - `bkgDocumentReference` — the carrier booking number
+    - `shippingCompany` — the carrier operating the main vessel
+    - `shipName` — the name of the vessel
+    - `shipEtdOrigin` — the estimated time of departure from the origin terminal
+    - `terminal` — the origin terminal where the vessel departs
+
+    > Note: For export shipments, the milestones `cargoOpeningAtDeepseaTerminalOrigin` and `cargoClosingAtDeepseaTerminalOrigin` are available. These are not returned for import shipments.
+
+    ---
+
     ### Publisher-specific Assumptions:
 
     The data returned by /events and /milestones may vary by publisher. Below is an overview of known differences in field interpretation.
@@ -101,6 +129,107 @@ paths:
                     inlandModality: string
                     inlandTerminal: string
                     inlandTerminalReference: string
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+              example:
+                statusCode: 0
+                message: string
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+              example:
+                statusCode: 0
+                message: string
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+              example:
+                statusCode: 0
+                message: string
+  '/v1/equipment/{companyEndpointName}/{equipmentReference}/archive':
+    put:
+      tags:
+        - Tracking
+      summary: '/v1/equipment/{companyEndpointName}/{equipmentReference}/archive - PUT'
+      description: 'Archive endpoint to archive a container that is tracked by HeyWim. After archiving, HeyWim will stop tracking and no events or milestones will be returned for the archived container.'
+      operationId: put-v1-equipment-companyendpointname-equipmentreference-archive
+      parameters:
+        - name: companyEndpointName
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: equipmentReference
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: No Content
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+              example:
+                statusCode: 0
+                message: string
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+              example:
+                statusCode: 0
+                message: string
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+              example:
+                statusCode: 0
+                message: string
+  '/v1/booking/{companyEndpointName}/{shippingCompany}/{documentReference}/archive':
+    put:
+      tags:
+        - Tracking
+      summary: '/v1/booking/{companyEndpointName}/{shippingCompany}/{documentReference}/archive - PUT'
+      description: 'Archive endpoint to archive a booking that is tracked by HeyWim. After archiving, HeyWim will stop tracking and no events or milestones will be returned for the archived booking.'
+      operationId: put-v1-booking-companyendpointname-shippingcompany-documentreference-archive
+      parameters:
+        - name: companyEndpointName
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: shippingCompany
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: documentReference
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: No Content
         '400':
           description: Bad Request
           content:
@@ -536,12 +665,12 @@ components:
             - $ref: '#/components/schemas/TransportEvent'
         cargoOpeningAtDeepseaTerminalOrigin:
           allOf:
-            - description: Indicates the cargo opening time at the origin deepsea terminal. This milestone is derived by finding the SHIPMENT event with document type code DEI (Delivery instructions) and document reference EFC (Earliest full-container delivery date).
+            - description: 'Indicates the cargo opening time at the origin deepsea terminal. This milestone is derived by finding the SHIPMENT event with document type code DEI (Delivery instructions) and document reference EFC (Earliest full-container delivery date). **Only available for export shipments.**'
             - nullable: true
             - $ref: '#/components/schemas/ShipmentEvent'
         cargoClosingAtDeepseaTerminalOrigin:
           allOf:
-            - description: Indicates the cargo closing time at the origin deepsea terminal. This milestone is derived by finding the SHIPMENT event with document type code DEI (Delivery instructions) and document reference FCO (FCL delivery cut-off).
+            - description: 'Indicates the cargo closing time at the origin deepsea terminal. This milestone is derived by finding the SHIPMENT event with document type code DEI (Delivery instructions) and document reference FCO (FCL delivery cut-off). **Only available for export shipments.**'
             - nullable: true
             - $ref: '#/components/schemas/ShipmentEvent'
         vesselDepartureOrigin:
