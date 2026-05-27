@@ -515,6 +515,15 @@ components:
         file:
           type: string
           nullable: true
+          description: |
+            Your own file number for this tracking request. The format is free — use whatever identifier fits your administration (e.g. a dossier, shipment or order number).
+
+            This value is part of the unique key of a container journey. Supplying a different `file` for the same container number lets you track the **same container more than once** (for example when a container number is re-used in a new shipment). Each distinct `file` results in a separate container journey.
+
+            Provide `file` whenever you may re-use container numbers; omit it if every container number you submit is unique, in which case only one journey per container is tracked.
+
+            When supplied, `file` is echoed back in the `references` array of every event and milestone for that journey, so you can link returned events to the correct journey in your own system. It is published using the DCSA reference type `CR` (Customer Reference).
+          example: CLIENT-FILE-0001
         reference:
           type: string
           nullable: true
