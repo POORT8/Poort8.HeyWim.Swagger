@@ -31,6 +31,20 @@ info:
 
     > Note: For export shipments, the milestones `cargoOpeningAtDeepseaTerminalOrigin` and `cargoClosingAtDeepseaTerminalOrigin` are available. These are not returned for import shipments.
 
+    ## Container Journey Key
+
+    Each tracking request creates a **container journey** identified by a unique key:
+
+    | Scenario | Key fields |
+    |---|---|
+    | Import / export, container number is unique | `containerNumber` + `shippingCompany` |
+    | Import / export, container number is reused | `containerNumber` + `shippingCompany` + `file` |
+    | Export without container number | `bkgDocumentReference` + `shippingCompany` |
+
+    Submitting the same key twice **updates** the existing journey. Submitting a new `file` value for an existing container number creates a **separate journey** — useful when a container number is reused across shipments.
+
+    The `file` value is echoed back in the `references` array of all events and milestones for that journey (DCSA reference type `CR`), so you can always link results back to the correct journey in your own system.
+
     ---
 
     ### Publisher-specific Assumptions:
@@ -516,13 +530,8 @@ components:
           type: string
           nullable: true
           description: |
-            Your own file number for this tracking request. The format is free — use whatever identifier fits your administration (e.g. a dossier, shipment or order number).
-
-            This value is part of the unique key of a container journey. Supplying a different `file` for the same container number lets you track the **same container more than once** (for example when a container number is re-used in a new shipment). Each distinct `file` results in a separate container journey.
-
-            Provide `file` whenever you may re-use container numbers; omit it if every container number you submit is unique, in which case only one journey per container is tracked.
-
-            When supplied, `file` is echoed back in the `references` array of every event and milestone for that journey, so you can link returned events to the correct journey in your own system. It is published using the DCSA reference type `CR` (Customer Reference).
+            Your own file number for this journey (e.g. a dossier or order number).
+            See **Container Journey Key** for how this field affects journey uniqueness.
           example: CLIENT-FILE-0001
         reference:
           type: string
